@@ -26,6 +26,7 @@ public class JudgeManager {
         QuestionSubmit questionSubmit = judgeContext.getQuestionSubmit();
         String language = questionSubmit.getLanguage();
         JudgeStrategy judgeStrategy = new DefaultJudgeStrategy();
+        // 设置不同语言执行的策略
         if ("java".equals(language)) {
             judgeStrategy = new JavaLanguageJudgeStrategy();
         }

@@ -22,7 +22,7 @@ public class MySecurityManager extends SecurityManager {
     @Override
     public void checkRead(String file) {
         System.out.println(file);
-        if (file.contains("C:\\code\\yuoj-code-sandbox")) {
+        if (file.contains("E:\\项目\\在线判题\\online_judge-microservice\\oj-code-sandbox")) {
             return;
         }
 //        throw new SecurityException("checkRead 权限异常：" + file);
