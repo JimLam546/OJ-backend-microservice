@@ -196,6 +196,7 @@ public class JavaDockerCodeSandbox extends JavaCodeSandboxTemplate {
             executeMessage.setErrorMessage(errorMessage[0]);
             executeMessage.setTime(time);
             executeMessage.setMemory(maxMemory[0]);
+            System.out.println("executeMessage = " + executeMessage);
             executeMessageList.add(executeMessage);
         }
         // 移除容器

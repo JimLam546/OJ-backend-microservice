@@ -67,7 +67,6 @@ public abstract class JavaCodeSandboxTemplate implements CodeSandbox {
         if (!b) {
             log.error("deleteFile error, userCodeFilePath = {}", userCodeFile.getAbsolutePath());
         }
-        outputResponse.setJudgeInfo(new JudgeInfo());
         return outputResponse;
     }
 
@@ -160,6 +159,7 @@ public abstract class JavaCodeSandboxTemplate implements CodeSandbox {
         List<String> outputList = new ArrayList<>();
         // 取用时最大值，便于判断是否超时
         long maxTime = 0;
+        long maxMemory = 0;
         for (ExecuteMessage executeMessage : executeMessageList) {
             String errorMessage = executeMessage.getErrorMessage();
             if (StrUtil.isNotBlank(errorMessage)) {
@@ -173,17 +173,24 @@ public abstract class JavaCodeSandboxTemplate implements CodeSandbox {
             if (time != null) {
                 maxTime = Math.max(maxTime, time);
             }
+            Long memory = executeMessage.getMemory();
+            if (memory != null) {
+                maxMemory = Math.max(maxMemory, memory);
+            }
         }
         // 正常运行完成
         if (outputList.size() == executeMessageList.size()) {
-            executeCodeResponse.setStatus(1);
+            executeCodeResponse.setStatus(2);
         }
         executeCodeResponse.setOutputList(outputList);
         JudgeInfo judgeInfo = new JudgeInfo();
         judgeInfo.setTime(maxTime);
+        // 返回的内存单位是 kb
+        judgeInfo.setMemory(maxMemory / 1024);
         // 要借助第三方库来获取内存占用，非常麻烦，此处不做实现
 //        judgeInfo.setMemory();
         executeCodeResponse.setJudgeInfo(judgeInfo);
+        System.out.println("executeCodeResponse = " + executeCodeResponse);
         return executeCodeResponse;
     }
 
