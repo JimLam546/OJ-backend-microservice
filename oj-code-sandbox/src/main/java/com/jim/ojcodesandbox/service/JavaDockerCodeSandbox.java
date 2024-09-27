@@ -28,7 +28,7 @@ public class JavaDockerCodeSandbox extends JavaCodeSandboxTemplate {
 
     private static final long TIME_OUT = 5000L;
 
-    private static final Boolean FIRST_INIT = true;
+    private static Boolean FIRST_INIT = true;
 
     public static void main(String[] args) {
         JavaDockerCodeSandbox javaNativeCodeSandbox = new JavaDockerCodeSandbox();
@@ -74,18 +74,18 @@ public class JavaDockerCodeSandbox extends JavaCodeSandboxTemplate {
                 System.out.println("拉取镜像异常");
                 throw new RuntimeException(e);
             }
+            FIRST_INIT = false;
         }
 
         System.out.println("下载完成");
 
         // 创建容器
-
         CreateContainerCmd containerCmd = dockerClient.createContainerCmd(image);
         HostConfig hostConfig = new HostConfig();
         hostConfig.withMemory(100 * 1000 * 1000L);
         hostConfig.withMemorySwap(0L);
         hostConfig.withCpuCount(1L);
-        hostConfig.withSecurityOpts(Arrays.asList("seccomp=安全管理配置字符串"));
+        hostConfig.withSecurityOpts(Arrays.asList("seccomp=unconfined"));
         hostConfig.setBinds(new Bind(userCodeParentPath, new Volume("/app")));
         CreateContainerResponse createContainerResponse = containerCmd
                 .withHostConfig(hostConfig)
@@ -160,7 +160,7 @@ public class JavaDockerCodeSandbox extends JavaCodeSandboxTemplate {
 
                 @Override
                 public void close() throws IOException {
-
+                    System.out.println("statisticsResultCallback已经close()");
                 }
 
                 @Override
@@ -183,12 +183,13 @@ public class JavaDockerCodeSandbox extends JavaCodeSandboxTemplate {
                 stopWatch.start();
                 dockerClient.execStartCmd(execId)
                         .exec(execStartResultCallback)
-                        .awaitCompletion(TIME_OUT, TimeUnit.MICROSECONDS);
+                        .awaitCompletion(TIME_OUT, TimeUnit.MILLISECONDS);
                 stopWatch.stop();
                 time = stopWatch.getLastTaskTimeMillis();
                 statsCmd.close();
-            } catch (InterruptedException e) {
+            } catch (Exception e) {// InterruptedException
                 System.out.println("程序执行异常");
+                System.out.println(e.getMessage());
                 throw new RuntimeException(e);
             }
             executeMessage.setMessage(message[0]);
@@ -197,6 +198,9 @@ public class JavaDockerCodeSandbox extends JavaCodeSandboxTemplate {
             executeMessage.setMemory(maxMemory[0]);
             executeMessageList.add(executeMessage);
         }
+        // 移除容器
+        dockerClient.stopContainerCmd(containerId).exec();
+        dockerClient.removeContainerCmd(containerId).exec();
         return executeMessageList;
     }
 }
