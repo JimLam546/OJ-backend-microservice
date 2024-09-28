@@ -312,6 +312,10 @@ public class QuestController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         final User loginUser = userFeignClient.getLoginUser(request);
+        questionService.update()
+                .eq("id", questionSubmitAddRequest.getQuestionId())
+                .setSql("submitNum = submitNum + 1")
+                .update();
         long questionSubmitId = questionSubmitService.doQuestionSubmit(questionSubmitAddRequest, loginUser);
         return ResultUtils.success(questionSubmitId);
     }

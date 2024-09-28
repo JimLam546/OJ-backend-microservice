@@ -1,9 +1,13 @@
 # OJ在线判题平台
 
+#### 项目地址
 前端地址：https://gitee.com/jim-lam/online-judge-frontend <br>
 后端地址：https://gitee.com/jim-lam/online-judge-backend-microservice <br>
+代码沙箱：https://gitee.com/jim-lam/online-judge-code-sandbox <br>
+
 #### 项目技术栈
-Spring Boot + Mybatis-Plus + Spring Cloud 微服务 + RabbitMQ + Docker
+
+Spring Boot + Mybatis-Plus + Redis + Spring Cloud 微服务 + RabbitMQ + Docker
 
 #### 项目介绍
 本项目是编程题目评测系统，能够根据用户提交的代码、出题人预先设置的题目输入和输出用例，
@@ -29,7 +33,7 @@ class Main{
     public static void main(String[] args) {
         int a = Integer.parseInt(args[0]);
         int b = Integer.parseInt(args[1]);
-        System.out.println((a+b));
+        System.out.print((a+b));
     }
 }
 ```

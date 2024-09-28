@@ -2,6 +2,8 @@ package com.jim.ojbackendjudgeservice.judge;
 
 
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.conditions.update.UpdateChainWrapper;
 import com.jim.ojbackendcommon.common.ErrorCode;
 import com.jim.ojbackendcommon.exception.BusinessException;
 import com.jim.ojbackendcommon.model.codesandbox.ExecuteCodeRequest;
@@ -10,6 +12,7 @@ import com.jim.ojbackendcommon.model.codesandbox.JudgeInfo;
 import com.jim.ojbackendcommon.model.dto.Question.JudgeCase;
 import com.jim.ojbackendcommon.model.entity.Question;
 import com.jim.ojbackendcommon.model.entity.QuestionSubmit;
+import com.jim.ojbackendcommon.model.enums.JudgeInfoMessageEnum;
 import com.jim.ojbackendcommon.model.enums.QuestionSubmitStatusEnum;
 import com.jim.ojbackendjudgeservice.judge.codesandbox.CodeSandbox;
 import com.jim.ojbackendjudgeservice.judge.codesandbox.CodeSandboxFactory;
@@ -106,6 +109,10 @@ public class JudgeServiceImpl implements JudgeService {
         questionSubmitUpdate.setStatus(QuestionSubmitStatusEnum.SUCCEED.getValue());
         questionSubmitUpdate.setJudgeInfo(JSONUtil.toJsonStr(judgeInfo));
         update = questionFeignClient.updateQuestionSubmitById(questionSubmitUpdate);
+        // 通过则修改通过数
+        if(JudgeInfoMessageEnum.ACCEPTED.getValue().equals(judgeInfo.getMessage())) {
+            questionFeignClient.updateAcceptedNum(questionFeignClient.getQuestionIdByQuestionSubmitById(questionSubmitId));
+        }
         if (!update) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "题目状态更新错误");
         }

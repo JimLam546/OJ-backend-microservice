@@ -14,7 +14,7 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("/inner")
-public class QuestionInnerController implements QuestionFeignClient    {
+public class QuestionInnerController implements QuestionFeignClient {
 
     @Resource
     private QuestionService questionService;
@@ -40,4 +40,46 @@ public class QuestionInnerController implements QuestionFeignClient    {
         return questionSubmitService.updateById(questionSubmit);
     }
 
+    /**
+     * 获取题目id
+     *
+     * @param questionSubmitId
+     * @return
+     */
+    @GetMapping("/question_submit/get/question")
+    public long getQuestionIdByQuestionSubmitById(@RequestParam("questionSubmitId") long questionSubmitId) {
+        return questionSubmitService.lambdaQuery()
+                .select(QuestionSubmit::getQuestionId)
+                .eq(QuestionSubmit::getId, questionSubmitId)
+                .one()
+                .getQuestionId();
+    }
+
+    /**
+     * 修改题目的提交数（+1）
+     *
+     * @param questionId
+     * @return
+     */
+    @GetMapping("/question/submitNum")
+    public boolean updateSubmitNum(@RequestParam("questionId") long questionId) {
+        return questionService.update()
+                .eq("id", questionId)
+                .setSql("submitNum = submitNum + 1")
+                .update();
+    }
+
+    /**
+     * 修改题目的通过数
+     *
+     * @param questionId
+     * @return
+     */
+    @GetMapping("/question/acceptedNum")
+    public boolean updateAcceptedNum(@RequestParam("questionId") long questionId) {
+        return questionService.update()
+                .eq("id", questionId)
+                .setSql("acceptedNum = acceptedNum + 1")
+                .update();
+    }
 }

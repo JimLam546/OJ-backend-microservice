@@ -27,11 +27,11 @@ public class RemoteCodeSandbox implements CodeSandbox {
         String json = JSONUtil.toJsonStr(executeCodeRequest);
         String responseStr = HttpUtil.createPost(url)
                 .header(AUTH_REQUEST_HEADER, AUTH_REQUEST_SECRET)
-                .body(json).timeout(5000)
+                .body(json)
                 .execute()
                 .body();
         if (StringUtils.isBlank(responseStr)) {
-            throw new BusinessException(ErrorCode.API_REQUEST_ERROR, "执行远程代码沙箱错误, 信息= = " + responseStr);
+            throw new BusinessException(ErrorCode.API_REQUEST_ERROR, "执行远程代码沙箱错误, 信息= " + responseStr);
         }
         System.out.println("responseStr=" + responseStr);
         return JSONUtil.toBean(responseStr, ExecuteCodeResponse.class);
