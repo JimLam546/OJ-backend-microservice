@@ -20,6 +20,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.gson.Gson;
 import com.jim.ojbackendquestionservice.service.QuestionService;
 import com.jim.ojbackendquestionservice.service.QuestionSubmitService;
+import com.jim.ojbackendquestionservice.service.RedisLimiterManager;
 import com.jim.ojbackendserviceclient.service.UserFeignClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -44,9 +45,11 @@ public class QuestController {
     @Resource
     private UserFeignClient userFeignClient;
 
-
     @Resource
     private QuestionSubmitService questionSubmitService;
+
+    @Resource
+    private RedisLimiterManager redisLimiterManager;
 
     private final static Gson GSON = new Gson();
 
@@ -296,8 +299,6 @@ public class QuestController {
     }
 
 
-
-
     /**
      * 提交题目
      *
@@ -312,6 +313,10 @@ public class QuestController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         final User loginUser = userFeignClient.getLoginUser(request);
+        // redisson 限流（每秒请求一次）
+        if (!redisLimiterManager.doRateLimit(questionSubmitAddRequest.getQuestionId().toString())) {
+            throw new BusinessException(ErrorCode.REQUEST_QUICK);
+        }
         questionService.update()
                 .eq("id", questionSubmitAddRequest.getQuestionId())
                 .setSql("submitNum = submitNum + 1")

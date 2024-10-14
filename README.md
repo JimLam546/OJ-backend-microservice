@@ -1,4 +1,4 @@
-# OJ在线判题平台
+# Code OJ
 
 #### 项目地址
 前端地址：https://gitee.com/jim-lam/online-judge-frontend <br>

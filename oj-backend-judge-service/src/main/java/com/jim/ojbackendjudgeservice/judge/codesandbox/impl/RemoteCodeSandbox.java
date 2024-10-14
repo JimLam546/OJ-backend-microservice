@@ -18,6 +18,7 @@ public class RemoteCodeSandbox implements CodeSandbox {
     private static final String AUTH_REQUEST_HEADER = "auth";
 
     private static final String AUTH_REQUEST_SECRET = "secretKey";
+    public static final int FAILURE = 3;
     @Override
     public ExecuteCodeResponse executeCode(ExecuteCodeRequest executeCodeRequest) {
         System.out.println("远程代码沙箱");
@@ -25,11 +26,21 @@ public class RemoteCodeSandbox implements CodeSandbox {
         // String url = "http://localhost:8090/executeCode";
         String url = "http://192.168.233.131:8090/executeCode";
         String json = JSONUtil.toJsonStr(executeCodeRequest);
-        String responseStr = HttpUtil.createPost(url)
-                .header(AUTH_REQUEST_HEADER, AUTH_REQUEST_SECRET)
-                .body(json)
-                .execute()
-                .body();
+        String responseStr = null;
+        // 捕获请求异常
+        try {
+            responseStr = HttpUtil.createPost(url)
+                    .header(AUTH_REQUEST_HEADER, AUTH_REQUEST_SECRET)
+                    .body(json)
+                    .execute()
+                    .body();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            ExecuteCodeResponse executeCodeResponse = new ExecuteCodeResponse();
+            executeCodeResponse.setStatus(FAILURE);
+            executeCodeResponse.setMessage("代码沙箱调用失败");
+            return executeCodeResponse;
+        }
         if (StringUtils.isBlank(responseStr)) {
             throw new BusinessException(ErrorCode.API_REQUEST_ERROR, "执行远程代码沙箱错误, 信息= " + responseStr);
         }
